@@ -1,0 +1,93 @@
+Cluster Management System LAD/TORQUE
+SIMPLE USER MANUAL
+Last update: 03/01/2013
+
+1. ladcomp
+
+	Compiles of a parallel application to be executed in LAD clusters.
+
+	Usage: ladcomp -env <environment> <sourcefile> -o <executable> [-fopenmp]
+
+	Parameters:
+	-env <environment>	compilation environment (mpicc for MPI over using C, 
+						mpiCC for MPI using C++, or
+						intelMPI for MPI using Intel C++)
+	-fopenmp		compilation with OpenMP
+
+	Example: ladcomp -env mpiCC hello.c -o hello
+
+2. ladqview
+
+	Shows information about the requests queue, like user names, start and finish times of the users,
+	the number of available nodes and the allocation mode (exclusive or shared).
+
+	Usage: ladqview [-c <cluster>]
+
+	Parameters:
+	-c <cluster>		cluster name
+
+	Example: ladqview -c gates
+
+3. ladalloc
+
+	Allocates a set of nodes in a cluster for a specific amount of time in exclusive or shared mode.
+	After completion, the user shell is redirected to the first node of the set of allocated nodes.
+	If the user leaves the shell (using exit), the application under execution, if any,  will be aborted,
+	and the allocated nodes are released.
+
+	Usage: ladalloc -c <cluster> -n <nodes> -t <time> [-s|-e]
+
+	Parameters:
+	-c <cluster>		cluster name
+	-n <nodes>		number of nodes
+	-t <time>		amount of time for allocation
+	[-s|-e]			shared or exclusive mode
+
+	Example: ladalloc -c gates -n 3 -t 15 -e
+
+4. ladrun
+
+	Executes an application in a LAD cluster using allocated nodes.
+
+	Usage: ladrun [-np <number_of_process>] [-net ether | inband] <executable>
+
+	Parameters:
+	-np <number_of_process>		number of processes used to execute the application - if not
+						specified, it uses the maximum number of cores available
+	-net ether | inband		network over ethernet or infiniband for communication between nodes
+						(use if the selected machines has infiniband) - if not
+						specified, it uses both networks.
+
+	Example: ladrun -np 2 -net inband hello
+
+5. ladrls
+
+	Releases nodes allocated using ladalloc. The application under execution, if any, will be aborted.
+
+	Usage: ladrls  -rid <rid> | -u <user> 
+
+	Parameters:
+	-rid <rid>		allocation request id
+	-u <user>		username
+
+	Example: ladrls -rid 2
+	Example: ladrls -u user1
+
+6. ladinfo
+
+	Shows information about the LAD clusters.
+
+	Usage: ladinfo [ -c <cluster> || -all ]
+
+	Parameters:
+	-c <cluster>		cluster name
+	-all			show information of all clusters
+
+	Example: ladinfo -c gates
+	Example: ladinfo -all
+
+7. ladnodes
+
+        Shows detailed information on your requested nodes: hostnames and their respective cores reserved, job IDs, requested and elapsed times.
+
+        Usage: ladnodes
