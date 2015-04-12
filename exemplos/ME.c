@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include "mpi.h"
-#define TAREFAS 7; // Numero de tarefas no saco de trabalho para np = 8, processo 0 Ã© o mestre
+#define TAREFAS 7 // Numero de tarefas no saco de trabalho para np = 8, processo 0 Ã© o mestre
 
 main(int argc, char** argv)
 {
