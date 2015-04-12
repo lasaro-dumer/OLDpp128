@@ -1,6 +1,6 @@
-#define TAREFAS 7; // Numero de tarefas no saco de trabalho para np = 8, processo 0 Ã© o mestre
 #include <stdio.h>
 #include "mpi.h"
+#define TAREFAS 7; // Numero de tarefas no saco de trabalho para np = 8, processo 0 Ã© o mestre
 
 main(int argc, char** argv)
 {
@@ -18,11 +18,11 @@ main(int argc, char** argv)
     if ( my_rank == 0 ) // qual o meu papel: sou o mestre ou um dos escravos?
     {
         // papel do mestre
-
+        int i=0;
         for ( i=0 ; i < TAREFAS ; i++) // mando o trabalho para os escravos fazerem
         {
            message = saco[i];
-           printf("sending to %d",i+1)
+           printf("sending to %d",i+1);
            MPI_Send(&message, i+1); // envio trabalho saco[i] para escravo com id = i+1;
         }
 
@@ -33,7 +33,7 @@ main(int argc, char** argv)
             // recebo mensagens de qualquer emissor e com qualquer etiqueta (TAG)
 
             MPI_Recv(&message, MPI_ANY_SOURCE, MPI_ANY_TAG, status);  // recebo por ordem de chegada com any_source
-            printf("receiving from %d",status.MPI_SOURCE-1)
+            printf("receiving from %d",status.MPI_SOURCE-1);
             saco[status.MPI_SOURCE-1] = message;   // coloco mensagem no saco na posiÃ§Ã£o do escravo emissor
         }
      }
@@ -42,9 +42,9 @@ main(int argc, char** argv)
          // papel do escravo
 
          MPI_Recv(&message, 0);    // recebo do mestre
-         printf("[%d]receiving work",my_rank)
+         printf("[%d]receiving work",my_rank);
          message = message+1;      // icremento conteÃºdo da mensagem
-         printf("[%d]sending work",my_rank)
+         printf("[%d]sending work",my_rank);
          MPI_Send(&message, 0);    // retorno resultado para o mestre
      }
 
