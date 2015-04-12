@@ -8,6 +8,7 @@ main(int argc, char** argv)
     int proc_n;        // Numero de processos disparados pelo usuÃ¡rio na linha de comando (np)
     int message;       // Buffer para as mensagens
     int saco[TAREFAS]; // saco de trabalho
+    MPI_Status status; /* Status de retorno */   
 
 
     MPI_Init(&argc , & argv); // funcao que inicializa o MPI, todo o cÃ³digo paralelo esta abaixo
