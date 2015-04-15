@@ -56,8 +56,9 @@ main(int argc, char** argv)
                 printf("killing %d\n",status.MPI_SOURCE);
 				MPI_Send(0, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
 			}else{
-				printf("sending %d\n",saco[dones]);
-				MPI_Send(&saco + dones, 8, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
+                int val = saco[dones];
+				printf("sending %d\n",val);
+				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
 			}
 		}
         printf("master leaving...\n");
