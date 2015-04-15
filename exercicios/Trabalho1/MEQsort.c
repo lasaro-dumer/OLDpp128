@@ -36,6 +36,8 @@ main(int argc, char** argv)
     MPI_Comm_size(MPI_COMM_WORLD, &proc_n);  // pega informaÃ§Ã£o do numero de processos (quantidade total)
 	int dones = 0;
 	int toDo = TAREFAS;
+
+    printf("process %d starting...\n",my_rank);
     if ( my_rank == 0 ) // qual o meu papel: sou o mestre ou um dos escravos?
     {
         // papel do mestre
