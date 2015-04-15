@@ -61,15 +61,16 @@ main(int argc, char** argv)
          // papel do escravo
 		//MPI_Send (message, strlen(message)+1, MPI_CHAR,dest, tag, MPI_COMM_WORLD);
 		//message = (my_rank + 1) * 2;
-		int work = WORK;
-		while(work == WORK){		
-			MPI_Send(0,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);    // retorno resultado para o mestre
+		int tag = WORK;
+		while(tag != SUICIDE){
+			MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);    // retorno resultado para o mestre
 			printf("[%d]sended tag: %d\n",my_rank,GET_WORK);
-			MPI_Recv(&message, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status); 
+			MPI_Recv(&message, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 			printf("[%d]receiving tag %d from master\n",my_rank,status.MPI_TAG);
-			if(status.MPI_TAG == WORK){
+            tag = status.MPI_TAG;
+			if(tag == WORK){
 				message = message + 1;
-				MPI_Send(&message,  8, MPI_INT,0, WORK_DONE, MPI_COMM_WORLD); 
+				MPI_Send(&message,  8, MPI_INT,0, WORK_DONE, MPI_COMM_WORLD);
 			}
 		}
      }
