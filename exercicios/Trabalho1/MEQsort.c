@@ -2,7 +2,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include "mpi.h"
-#define TAREFAS 16
+#define TAREFAS 5
 #define GET_WORK 0
 #define WORK_DONE 1
 #define WORK 2
@@ -43,12 +43,13 @@ main(int argc, char** argv)
 		sleep(5);
 		while(dones<toDo){
 			MPI_Recv(&message, 8, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
-			printf("receiving %d from %d with tag %d\n",message,status.MPI_SOURCE,status.MPI_TAG);
+			printf("receiving %d from %d\n",message,status.MPI_SOURCE);
 			if(status.MPI_TAG == WORK_DONE){
 				dones++;
 			}
 
 			if(dones==TAREFAS){
+                printf("killing %d\n",status.MPI_SOURCE);
 				MPI_Send(0, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
 			}else{
 				printf("sending %d\n",saco[dones]);
@@ -66,7 +67,7 @@ main(int argc, char** argv)
 			MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);    // retorno resultado para o mestre
 			printf("[%d]sended tag: %d\n",my_rank,GET_WORK);
 			MPI_Recv(&message, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-			printf("[%d]receiving tag %d from master\n",my_rank,status.MPI_TAG);
+			printf("[%d]receiving work %d from master\n",my_rank,&message);
             tag = status.MPI_TAG;
 			if(tag == WORK){
 				message = message + 1;
