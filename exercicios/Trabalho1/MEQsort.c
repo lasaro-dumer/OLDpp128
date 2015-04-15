@@ -43,10 +43,12 @@ main(int argc, char** argv)
 		sleep(5);
 		while(dones<toDo){
 			MPI_Recv(&message, 8, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
-			printf("receiving %d from %d\n",message,status.MPI_SOURCE);
 			if(status.MPI_TAG == WORK_DONE){
+                printf("receiving %d from %d\n",message,status.MPI_SOURCE);
 				dones++;
-			}
+			}else{
+                printf("nothin to report from %d\n",status.MPI_SOURCE);
+            }
 
 			if(dones==TAREFAS){
                 printf("killing %d\n",status.MPI_SOURCE);
@@ -56,6 +58,7 @@ main(int argc, char** argv)
 				MPI_Send(&saco + dones, 8, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
 			}
 		}
+        printf("master leaving...\n");
      }
      else
      {
@@ -67,13 +70,14 @@ main(int argc, char** argv)
 			MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);    // retorno resultado para o mestre
 			printf("[%d]sended tag: %d\n",my_rank,GET_WORK);
 			MPI_Recv(&message, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-			printf("[%d]receiving work %d from master\n",my_rank,&message);
+			printf("[%d]receiving work %d from master\n",my_rank,message);
             tag = status.MPI_TAG;
 			if(tag == WORK){
 				message = message + 1;
 				MPI_Send(&message,  8, MPI_INT,0, WORK_DONE, MPI_COMM_WORLD);
 			}
 		}
+        printf("slave[%d] leaving...\n",my_rank);
      }
 
     MPI_Finalize();
