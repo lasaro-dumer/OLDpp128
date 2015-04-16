@@ -64,7 +64,7 @@ main(int argc, char** argv)
                 printf("receiving %d from %d\n",message,status.MPI_SOURCE);
 				dones++;
 			}else{
-                printf("nothin to report from %d\n",status.MPI_SOURCE);
+                printf("receiving %s from %d\n",printTag(GET_WORK),status.MPI_SOURCE);
             }
 
             int val = saco[dones];
