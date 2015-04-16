@@ -73,7 +73,7 @@ main(int argc, char** argv)
                 printf("killing %d\n",status.MPI_SOURCE);
 				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
 			}else{
-				printf("sending %d\n",val);
+				printf("sending %d to %d\n",val,status.MPI_SOURCE);
 				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
 			}
 		}
