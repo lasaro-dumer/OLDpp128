@@ -58,6 +58,7 @@ main(int argc, char** argv)
 		printf("Wait for 5 seconds to start.\n");
 		sleep(5);
 		while(dones<toDo){
+            printf("waiting.tarefas=%d;dones=%d;toDo=%d\n",TAREFAS,dones,toDo);
 			MPI_Recv(&message, 8, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
 			if(status.MPI_TAG == WORK_DONE){
                 printf("receiving %d from %d\n",message,status.MPI_SOURCE);
@@ -66,11 +67,12 @@ main(int argc, char** argv)
                 printf("nothin to report from %d\n",status.MPI_SOURCE);
             }
 
+            int val = saco[dones];
 			if(dones==TAREFAS){
+                val=0;
                 printf("killing %d\n",status.MPI_SOURCE);
-				MPI_Send(0, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
+				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
 			}else{
-                int val = saco[dones];
 				printf("sending %d\n",val);
 				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
 			}
