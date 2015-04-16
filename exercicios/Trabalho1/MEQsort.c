@@ -12,6 +12,20 @@ int compare (const void * a, const void * b)
   return ( *(int*)a - *(int*)b );
 }
 
+const char * printTag(int tag){
+    if(tag== GET_WORK){
+        return "GET_WORK";
+    }else if(tag==WORK_DONE){
+        return "WORK_DONE";
+    }else if(tag==WORK){
+        return "WORK";
+    }else if(tag==SUICIDE){
+        return "SUICIDE";
+    }else{
+        return "Invalid Tag";
+    }
+}
+
 main(int argc, char** argv)
 {
     int my_rank;       // Identificador deste processo
@@ -71,9 +85,9 @@ main(int argc, char** argv)
 		int tag = WORK;
 		while(tag != SUICIDE){
 			MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);    // retorno resultado para o mestre
-			printf("[%d]sended tag: %d\n",my_rank,GET_WORK);
+			printf("[%d]sended tag: %s\n",my_rank,printTag(GET_WORK));
 			MPI_Recv(&message, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-			printf("[%d]receiving work %d from master\n",my_rank,message);
+			printf("[%d]receiving work %d from master with tag %s\n",my_rank,message,printTag(status.MPI_TAG));
             tag = status.MPI_TAG;
 			if(tag == WORK){
 				message = message + 1;
