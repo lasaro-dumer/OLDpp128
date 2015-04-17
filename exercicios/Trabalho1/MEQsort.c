@@ -86,6 +86,7 @@ main(int argc, char** argv)
 		//message = (my_rank + 1) * 2;
 		int tag = WORK;
 		while(tag != SUICIDE){
+            printf("[%d]waiting\n",my_rank);
 			MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);    // retorno resultado para o mestre
 			printf("[%d]sended tag: %s\n",my_rank,printTag(GET_WORK));
 			MPI_Recv(&message, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
