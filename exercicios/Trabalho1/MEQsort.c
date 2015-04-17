@@ -26,12 +26,12 @@ const char * printTag(int tag){
     }
 }
 
-const char * curTime(){
-    time_t rawtime;
-    struct tm * timeinfo;
-    time(&rawtime);
-    timeinfo = localtime ( &rawtime );
-    return asctime (timeinfo);
+
+const double curMilis(){
+    struct timeval  tv;
+    gettimeofday(&tv, NULL);
+
+    return ((tv.tv_sec) * 1000 + (tv.tv_usec) / 1000.0) +0.5; // convert tv_sec & tv_usec to millisecond
 }
 
 main(int argc, char** argv)
@@ -59,33 +59,33 @@ main(int argc, char** argv)
 	int dones = 0;
 	int toDo = TAREFAS;
 
-    printf("[%s]@process %d starting...\n",curTime(),my_rank);
+    printf("[%f]@process %d starting...\n",curMilis(),my_rank);
     if ( my_rank == 0 ) // qual o meu papel: sou o mestre ou um dos escravos?
     {
         // papel do mestre
-		printf("[%s]@Wait for 5 seconds to start.\n",curTime());
+		printf("[%f]@Wait for 5 seconds to start.\n",curMilis());
 		sleep(5);
 		while(dones<toDo){
-            printf("[%s]@waiting.tarefas=%d;dones=%d;toDo=%d\n",curTime(),TAREFAS,dones,toDo);
+            printf("[%f]@waiting.tarefas=%d;dones=%d;toDo=%d\n",curMilis(),TAREFAS,dones,toDo);
 			MPI_Recv(&message, 8, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
 			if(status.MPI_TAG == WORK_DONE){
-                printf("[%s]@receiving %d from %d\n",curTime(),message,status.MPI_SOURCE);
+                printf("[%f]@receiving %d from %d\n",curMilis(),message,status.MPI_SOURCE);
 				dones++;
 			}else{
-                printf("[%s]@receiving %s from %d\n",curTime(),printTag(GET_WORK),status.MPI_SOURCE);
+                printf("[%f]@receiving %s from %d\n",curMilis(),printTag(GET_WORK),status.MPI_SOURCE);
             }
 
             int val = saco[dones];
 			if(dones==TAREFAS){
                 val=0;
-                printf("[%s]@killing %d\n",curTime(),status.MPI_SOURCE);
+                printf("[%f]@killing %d\n",curMilis(),status.MPI_SOURCE);
 				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
 			}else{
-				printf("[%s]@sending %d to %d\n",curTime(),val,status.MPI_SOURCE);
+				printf("[%f]@sending %d to %d\n",curMilis(),val,status.MPI_SOURCE);
 				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
 			}
 		}
-        printf("[%s]@master leaving...\n",curTime());
+        printf("[%f]@master leaving...\n",curMilis());
      }
      else
      {
@@ -94,18 +94,18 @@ main(int argc, char** argv)
 		//message = (my_rank + 1) * 2;
 		int tag = WORK;
 		while(tag != SUICIDE){
-            printf("[%s]@[%d]waiting\n",curTime(),my_rank);
+            printf("[%f]@[%d]waiting\n",curMilis(),my_rank);
 			MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);    // retorno resultado para o mestre
-			printf("[%s]@[%d]sended tag: %s\n",curTime(),my_rank,printTag(GET_WORK));
+			printf("[%f]@[%d]sended tag: %s\n",curMilis(),my_rank,printTag(GET_WORK));
 			MPI_Recv(&message, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-			printf("[%s]@[%d]receiving work %d from master with tag %s\n",curTime(),my_rank,message,printTag(status.MPI_TAG));
+			printf("[%f]@[%d]receiving work %d from master with tag %s\n",curMilis(),my_rank,message,printTag(status.MPI_TAG));
             tag = status.MPI_TAG;
 			if(tag == WORK){
 				message = message + 1;
 				MPI_Send(&message,  8, MPI_INT,0, WORK_DONE, MPI_COMM_WORLD);
 			}
 		}
-        printf("[%s]@slave[%d] leaving...\n",curTime(),my_rank);
+        printf("[%f]@slave[%d] leaving...\n",curMilis(),my_rank);
      }
 
     MPI_Finalize();
