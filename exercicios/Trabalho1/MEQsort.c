@@ -49,7 +49,7 @@ main(int argc, char** argv)
 
 	for(i=0;i < TAREFAS;i++){
 		saco[i] = (rand() % TAREFAS) + 1;
-        printf("[%f]@creating saco[%d]=%d\n",curMilis(),i,saco[i])
+        printf("[%f]@creating saco[%d]=%d\n",curMilis(),i,saco[i]);
 	}
 
     MPI_Status status; /* Status de retorno */
