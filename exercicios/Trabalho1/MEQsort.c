@@ -61,32 +61,39 @@ main(int argc, char** argv)
 	int toDo = TAREFAS;
 
     printf("[%f]@process %d starting...\n",curMilis(),my_rank);
+    usleep(1000);
     if ( my_rank == 0 ) // qual o meu papel: sou o mestre ou um dos escravos?
     {
         // papel do mestre
-		printf("[%f]@Wait for 5 seconds to start.\n",curMilis());
-		sleep(5);
+		//printf("[%f]@Wait for 5 seconds to start.\n",curMilis());
+		//sleep(5);
 		while(dones<toDo){
             printf("[%f]@waiting.tarefas=%d;dones=%d;toDo=%d\n",curMilis(),TAREFAS,dones,toDo);
+            usleep(1000);
 			MPI_Recv(&message, 8, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
 			if(status.MPI_TAG == WORK_DONE){
                 printf("[%f]@receiving %d from %d\n",curMilis(),message,status.MPI_SOURCE);
+                usleep(1000);
 				dones++;
 			}else{
                 printf("[%f]@receiving %s from %d\n",curMilis(),printTag(GET_WORK),status.MPI_SOURCE);
+                usleep(1000);
             }
 
             int val = saco[dones];
 			if(dones==TAREFAS){
                 val=0;
                 printf("[%f]@killing %d\n",curMilis(),status.MPI_SOURCE);
+                usleep(1000);
 				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
 			}else{
 				printf("[%f]@sending %d to %d\n",curMilis(),val,status.MPI_SOURCE);
+                usleep(1000);
 				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
 			}
 		}
         printf("[%f]@master leaving...\n",curMilis());
+        usleep(1000);
      }
      else
      {
@@ -96,10 +103,13 @@ main(int argc, char** argv)
 		int tag = WORK;
 		while(tag != SUICIDE){
             printf("[%f]@[%d]waiting\n",curMilis(),my_rank);
+            usleep(1000);
 			MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);    // retorno resultado para o mestre
 			printf("[%f]@[%d]sended tag: %s\n",curMilis(),my_rank,printTag(GET_WORK));
+            usleep(1000);
 			MPI_Recv(&message, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 			printf("[%f]@[%d]receiving work %d from master with tag %s\n",curMilis(),my_rank,message,printTag(status.MPI_TAG));
+            usleep(1000);
             tag = status.MPI_TAG;
 			if(tag == WORK){
 				message = message + 1;

@@ -26,8 +26,9 @@ sprintf(result, "%.3s                       %.3s                     %3d        
 int main ()
 {
     int i;
-    for(i=0;i<61;i++){
+    for(i=0;i<30;i++){
         printf("Current local time and date: %f\n", curMilis());
+        usleep(1000);
     }
 
 
