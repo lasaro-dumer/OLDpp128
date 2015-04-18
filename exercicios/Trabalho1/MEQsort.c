@@ -47,10 +47,13 @@ main(int argc, char** argv)
 	int r = rand();
 
 
-	for(i=0;i < TAREFAS;i++){
-		saco[i] = (rand() % TAREFAS) + 1;
-        printf("[%f]@creating saco[%d]=%d\n",curMilis(),i,saco[i]);
-	}
+    if ( my_rank == 0 )
+    {
+    	for(i=0;i < TAREFAS;i++){
+    		saco[i] = (rand() % TAREFAS) + 1;
+            printf("[%f]@creating saco[%d]=%d\n",curMilis(),i,saco[i]);
+    	}
+    }
 
     MPI_Status status; /* Status de retorno */
 
@@ -63,7 +66,6 @@ main(int argc, char** argv)
     int slavesAlive = proc_n-1;
 
     printf("[%f]@process %d starting...\n",curMilis(),my_rank);
-    usleep(1000);
     if ( my_rank == 0 ) // qual o meu papel: sou o mestre ou um dos escravos?
     {
         // papel do mestre
@@ -93,13 +95,11 @@ main(int argc, char** argv)
                     slavesAlive--;
     			}else {
     				printf("[%f]@sending %d to %d\n",curMilis(),val,status.MPI_SOURCE);
-                    usleep(1000);
     				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
     			}
             }
 		}
         printf("[%f]@master leaving...\n",curMilis());
-        usleep(1000);
      }
      else
      {
@@ -111,13 +111,12 @@ main(int argc, char** argv)
             printf("[%f]@[%d]waiting\n",curMilis(),my_rank);
             MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);    // retorno resultado para o mestre
 			printf("[%f]@[%d]sended tag: %s\n",curMilis(),my_rank,printTag(GET_WORK));
-            usleep(1000);
 			MPI_Recv(&message, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
 			printf("[%f]@[%d]receiving work %d from master with tag %s\n",curMilis(),my_rank,message,printTag(status.MPI_TAG));
-            usleep(1000);
             tag = status.MPI_TAG;
 			if(tag == WORK){
 				message = message + 1;
+                sleep((rand() % 9));//simulate work...
 				MPI_Send(&message,  8, MPI_INT,0, WORK_DONE, MPI_COMM_WORLD);
 			}
 		}
