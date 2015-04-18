@@ -86,14 +86,14 @@ main(int argc, char** argv)
 
 			if(status.MPI_TAG == GET_WORK)
             {
-                int val = saco[dones];
-                if(dones==TAREFAS){
-                    val=0;
+                int val=0;
+                if(dones>=TAREFAS){
                     printf("[%f]@killing %d\n",curMilis(),status.MPI_SOURCE);
                     usleep(1000);
     				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
                     slavesAlive--;
     			}else {
+                    val = saco[dones];
     				printf("[%f]@sending %d to %d\n",curMilis(),val,status.MPI_SOURCE);
     				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
     			}
