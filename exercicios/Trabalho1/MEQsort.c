@@ -49,6 +49,7 @@ main(int argc, char** argv)
 
 	for(i=0;i < TAREFAS;i++){
 		saco[i] = (rand() % TAREFAS) + 1;
+        printf("[%f]@creating saco[%d]=%d\n",curMilis(),i,saco[i])
 	}
 
     MPI_Status status; /* Status de retorno */
@@ -67,7 +68,7 @@ main(int argc, char** argv)
         // papel do mestre
 		//printf("[%f]@Wait for 5 seconds to start.\n",curMilis());
 		//sleep(5);
-		while(dones<toDo){
+		while(dones<=toDo){
             printf("[%f]@waiting.tarefas=%d;dones=%d;toDo=%d\n",curMilis(),TAREFAS,dones,toDo);
             usleep(1000);
 			MPI_Recv(&message, 8, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
