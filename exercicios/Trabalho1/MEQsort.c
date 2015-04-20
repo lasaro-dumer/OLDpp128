@@ -62,7 +62,6 @@ main(int argc, char** argv)
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);  // pega pega o numero do processo atual (rank)
     MPI_Comm_size(MPI_COMM_WORLD, &proc_n);  // pega informaÃ§Ã£o do numero de processos (quantidade total)
 	int dones = 0;
-	int toDo = TAREFAS;
     int slavesAlive = proc_n-1;
 
     printf("[%f]@process %d starting...\n",curMilis(),my_rank);
@@ -71,8 +70,9 @@ main(int argc, char** argv)
         // papel do mestre
 		//printf("[%f]@Wait for 5 seconds to start.\n",curMilis());
 		//sleep(5);
+        int next = 0;
 		while(slavesAlive > 0){
-            printf("[%f]@waiting.tarefas=%d;dones=%d;toDo=%d\n",curMilis(),TAREFAS,dones,toDo);
+            printf("[%f]@waiting.tarefas=%d;dones=%d;next=%d\n",curMilis(),TAREFAS,dones,next);
             usleep(1000);
 			MPI_Recv(&message, 8, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
 			if(status.MPI_TAG == WORK_DONE){
@@ -87,15 +87,16 @@ main(int argc, char** argv)
 			if(status.MPI_TAG == GET_WORK)
             {
                 int val=0;
-                if(dones>=TAREFAS){
+                if(next>=TAREFAS){
                     printf("[%f]@killing %d\n",curMilis(),status.MPI_SOURCE);
                     usleep(1000);
     				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
                     slavesAlive--;
     			}else {
-                    val = saco[dones];
+                    val = saco[next];
     				printf("[%f]@sending %d to %d\n",curMilis(),val,status.MPI_SOURCE);
     				MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
+                    next++;
     			}
             }
 		}
@@ -116,7 +117,7 @@ main(int argc, char** argv)
             tag = status.MPI_TAG;
 			if(tag == WORK){
 				message = message + 1;
-                sleep((rand() % 9));//simulate work...
+                sleep((rand() % 4));//simulate work...
 				MPI_Send(&message,  8, MPI_INT,0, WORK_DONE, MPI_COMM_WORLD);
 			}
 		}
