@@ -48,6 +48,7 @@ main(int argc, char** argv){
 	int r = rand();
 
     if ( my_rank == 0 ){
+        printf("[%f]@creating works to do...\n",curMilis());
         saco = (int **)malloc(NUM_ARRAYS * sizeof(int *));
         if(saco == NULL)
         {
@@ -92,6 +93,7 @@ main(int argc, char** argv){
                 }
             }
         }
+        printf("[%f]@works created...\n",curMilis());
     }
 
     MPI_Status status; /* Status de retorno */
@@ -104,6 +106,7 @@ main(int argc, char** argv){
     int slavesAlive = proc_n-1;
 
     if ( my_rank == 0 ){
+        printf("[%f]@master starting...\n",curMilis());
         int next = 0;
         for(s=1;s<slavesAlive;s++){
             if(next>=NUM_ARRAYS){
@@ -133,24 +136,25 @@ main(int argc, char** argv){
             }
 		}
         printf("[%f]@master leaving...\n",curMilis());
-     }
-     else
-     {
-		int tag = WORK;
-		do{
+    }
+    else
+    {
+        printf("[%f]@slave[%d] starting...\n",curMilis(),my_rank);
+        int tag = WORK;
+        do{
             MPI_Recv(toOrder, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             printf("[%f]@receiving work from master with tag %s\n",curMilis(),printTag(status.MPI_TAG));
-			tag = status.MPI_TAG;
-			if(tag == WORK){
+    		tag = status.MPI_TAG;
+    		if(tag == WORK){
                 qsort (toOrder, ARRAYS_SIZE, sizeof(int), compare);
-				MPI_Send(toOrder,  8, MPI_INT,0, WORK_DONE, MPI_COMM_WORLD);
-			}
+    			MPI_Send(toOrder,  8, MPI_INT,0, WORK_DONE, MPI_COMM_WORLD);
+    		}
             if(tag != SUICIDE){
                 MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);
             }
-		}while(tag != SUICIDE);
+        }while(tag != SUICIDE);
         printf("[%f]@slave[%d] leaving...\n",curMilis(),my_rank);
-     }
+    }
 
     MPI_Finalize();
 
