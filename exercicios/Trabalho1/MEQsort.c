@@ -143,7 +143,7 @@ main(int argc, char** argv){
             {
                 printf("%d,",ordered[i][j]);
             }
-            printf("}\n",);
+            printf("}\n");
         }
     }
     else
