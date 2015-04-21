@@ -7,8 +7,8 @@
 #define WORK_DONE 1
 #define WORK 2
 #define SUICIDE 3
-#define NUM_ARRAYS 10
-#define ARRAYS_SIZE 5
+#define NUM_ARRAYS 20
+#define ARRAYS_SIZE 30
 
 int compare (const void * a, const void * b){
   return ( *(int*)a - *(int*)b );
@@ -51,7 +51,6 @@ main(int argc, char** argv){
 
     MPI_Init(&argc , & argv); // funcao que inicializa o MPI, todo o cÃ³digo paralelo esta abaixo
 
-    t1 = MPI_Wtime();        // contagem de tempo inicia neste ponto
 
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &proc_n);
@@ -59,6 +58,7 @@ main(int argc, char** argv){
     int slavesAlive = proc_n-1;
 
     if ( my_rank == 0 ){
+        t1 = MPI_Wtime();        // contagem de tempo inicia neste ponto
         //printf("[%f]@master starting...\n",curMilis());
         //printf("[%f]@creating works to do...\n",curMilis());
         saco = (int **)malloc(NUM_ARRAYS * sizeof(int *));
@@ -114,7 +114,11 @@ main(int argc, char** argv){
             }
 		}
         printf("[%f]@master leaving...\n",curMilis());
-        //*
+
+        t2 = MPI_Wtime();        // contagem de tempo termina neste ponto
+
+        printf("[%f]@[%d]MPI_Wtime measured work time to be: %1.2f\n",curMilis(),my_rank, t2-t1);
+        /*
         printf("ordenados\n");
         for(i = 0; i < NUM_ARRAYS; i++)
         {
@@ -144,10 +148,6 @@ main(int argc, char** argv){
         }while(tag != SUICIDE);
         printf("[%f]@slave[%d] leaving...\n",curMilis(),my_rank);
     }
-
-    t2 = MPI_Wtime();        // contagem de tempo termina neste ponto
-
-    printf("[%f]@[%d]MPI_Wtime measured work time to be: %1.2f\n",curMilis(),my_rank, t2-t1);
 
     MPI_Finalize();
 
