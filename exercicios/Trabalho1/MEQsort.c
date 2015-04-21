@@ -113,14 +113,14 @@ main(int argc, char** argv){
                 slavesAlive--;
             }else {
                 printf("[%f]@sending work to slave %d\n",curMilis(),s);
-                MPI_Send(saco[next], 8, MPI_INT,s, WORK, MPI_COMM_WORLD);
+                MPI_Send(saco[next], ARRAYS_SIZE, MPI_INT,s, WORK, MPI_COMM_WORLD);
                 next++;
             }
         }
         printf("[%f]@works sended; next=%d\n",curMilis(), next);
 
 		while(slavesAlive > 0){
-            MPI_Recv(toOrder, 8, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
+            MPI_Recv(toOrder, ARRAYS_SIZE, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
 			if(status.MPI_TAG == WORK_DONE){
                 ordered[dones]=toOrder;
                 dones++;
@@ -130,7 +130,7 @@ main(int argc, char** argv){
                     slavesAlive--;
     			}else {
                     val = saco[next];
-    				MPI_Send(saco[next], 8, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
+    				MPI_Send(saco[next], ARRAYS_SIZE, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
                     next++;
     			}
             }
@@ -142,12 +142,12 @@ main(int argc, char** argv){
         printf("[%f]@slave[%d] starting...\n",curMilis(),my_rank);
         int tag = WORK;
         do{
-            MPI_Recv(toOrder, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            MPI_Recv(toOrder, ARRAYS_SIZE, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             printf("[%f]@receiving work from master with tag %s\n",curMilis(),printTag(status.MPI_TAG));
     		tag = status.MPI_TAG;
     		if(tag == WORK){
                 qsort (toOrder, ARRAYS_SIZE, sizeof(int), compare);
-    			MPI_Send(toOrder,  8, MPI_INT,0, WORK_DONE, MPI_COMM_WORLD);
+    			MPI_Send(toOrder,  ARRAYS_SIZE, MPI_INT,0, WORK_DONE, MPI_COMM_WORLD);
     		}
             if(tag != SUICIDE){
                 MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);
