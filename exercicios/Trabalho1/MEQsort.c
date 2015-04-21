@@ -7,8 +7,8 @@
 #define WORK_DONE 1
 #define WORK 2
 #define SUICIDE 3
-#define NUM_ARRAYS 20
-#define ARRAYS_SIZE 30
+#define NUM_ARRAYS 100000
+#define ARRAYS_SIZE 10000
 
 int compare (const void * a, const void * b){
   return ( *(int*)a - *(int*)b );
