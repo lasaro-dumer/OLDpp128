@@ -39,7 +39,7 @@ main(int argc, char** argv){
     int my_rank;       // Identificador deste processo
     int proc_n;        // Numero de processos disparados pelo usuÃ¡rio na linha de comando (np)
     int **saco;
-    int * toOrder;
+    int toOrder[ARRAYS_SIZE];
     int **ordered;
     int i,j,s;
     int * val=(int*)0;
@@ -126,10 +126,9 @@ main(int argc, char** argv){
                 dones++;
 			}else if(status.MPI_TAG == GET_WORK){
                 if(next>=NUM_ARRAYS){
-                    MPI_Send(val, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
+                    MPI_Send(toOrder, ARRAYS_SIZE, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
                     slavesAlive--;
     			}else {
-                    val = saco[next];
     				MPI_Send(saco[next], ARRAYS_SIZE, MPI_INT,status.MPI_SOURCE, WORK, MPI_COMM_WORLD);
                     next++;
     			}
@@ -139,9 +138,9 @@ main(int argc, char** argv){
     }
     else
     {
-        printf("[%f]@slave[%d] starting...\n",curMilis(),my_rank);
         int tag = WORK;
         do{
+            printf("[%f]@slave[%d] waiting...\n",curMilis(),my_rank);
             MPI_Recv(toOrder, ARRAYS_SIZE, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
             printf("[%f]@receiving work from master with tag %s\n",curMilis(),printTag(status.MPI_TAG));
     		tag = status.MPI_TAG;
@@ -150,7 +149,7 @@ main(int argc, char** argv){
     			MPI_Send(toOrder,  ARRAYS_SIZE, MPI_INT,0, WORK_DONE, MPI_COMM_WORLD);
     		}
             if(tag != SUICIDE){
-                MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);
+                MPI_Send(toOrder,ARRAYS_SIZE, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);
             }
         }while(tag != SUICIDE);
         printf("[%f]@slave[%d] leaving...\n",curMilis(),my_rank);
