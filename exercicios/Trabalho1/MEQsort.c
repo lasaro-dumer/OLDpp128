@@ -40,7 +40,6 @@ main(int argc, char** argv){
     int proc_n;
     int **saco;
     int toOrder[ARRAYS_SIZE];
-    int **ordered;
     int i,j,s;
     int * val=(int*)0;
     double t1, t2;
@@ -83,29 +82,6 @@ main(int argc, char** argv){
                 }
             }
         }
-
-        ordered = (int **)malloc(NUM_ARRAYS * sizeof(int *));
-        if(ordered == NULL)
-        {
-            printf("out of memory\n");
-            return -1;
-        }else{
-            for(i = 0; i < NUM_ARRAYS; i++)
-            {
-                ordered[i] = (int *)malloc(ARRAYS_SIZE * sizeof(int));
-                if(ordered[i] == NULL)
-                {
-                    printf("out of memory row %d\n",i);
-                    return -1;
-                }else{
-                    /*
-                    for(j = 0; j< ARRAYS_SIZE; j++)
-                    {
-                        ordered[i][j] = 0;
-                    }//*/
-                }
-            }
-        }
         //printf("[%f]@works created...\n",curMilis());
 
         int next = 0;
@@ -125,7 +101,7 @@ main(int argc, char** argv){
 		while(slavesAlive > 0){
             MPI_Recv(toOrder, ARRAYS_SIZE, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
 			if(status.MPI_TAG == WORK_DONE){
-                ordered[dones]=toOrder;
+                saco[dones]=toOrder;
                 dones++;
 			}else if(status.MPI_TAG == GET_WORK){
                 if(next>=NUM_ARRAYS){
@@ -139,24 +115,13 @@ main(int argc, char** argv){
 		}
         printf("[%f]@master leaving...\n",curMilis());
         //*
-        sleep(1);
-        printf("originais\n");
-        for(i = 0; i < NUM_ARRAYS; i++)
-        {
-            printf("array[%d]={",i);
-            for(j = 0; j< ARRAYS_SIZE; j++)
-            {
-                printf("%d,",saco[i][j]);
-            }
-            printf("}\n");
-        }
         printf("ordenados\n");
         for(i = 0; i < NUM_ARRAYS; i++)
         {
             printf("array[%d]={",i);
             for(j = 0; j< ARRAYS_SIZE; j++)
             {
-                printf("%d,",ordered[i][j]);
+                printf("%d,",saco[i][j]);
             }
             printf("}\n");
         }//*/
