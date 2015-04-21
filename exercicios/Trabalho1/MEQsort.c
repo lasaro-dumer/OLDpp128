@@ -43,6 +43,7 @@ main(int argc, char** argv){
     int **ordered;
     int i,j,s;
     int * val=(int*)0;
+    double t1, t2;
 
 	srand(time(NULL));
 	int r = rand();
@@ -50,6 +51,8 @@ main(int argc, char** argv){
     MPI_Status status; /* Status de retorno */
 
     MPI_Init(&argc , & argv); // funcao que inicializa o MPI, todo o cÃ³digo paralelo esta abaixo
+
+    t1 = MPI_Wtime();        // contagem de tempo inicia neste ponto
 
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
     MPI_Comm_size(MPI_COMM_WORLD, &proc_n);
@@ -135,7 +138,19 @@ main(int argc, char** argv){
             }
 		}
         printf("[%f]@master leaving...\n",curMilis());
+        //*
         sleep(1);
+        printf("originais\n");
+        for(i = 0; i < NUM_ARRAYS; i++)
+        {
+            printf("array[%d]={",i);
+            for(j = 0; j< ARRAYS_SIZE; j++)
+            {
+                printf("%d,",saco[i][j]);
+            }
+            printf("}\n");
+        }
+        printf("ordenados\n");
         for(i = 0; i < NUM_ARRAYS; i++)
         {
             printf("array[%d]={",i);
@@ -144,7 +159,7 @@ main(int argc, char** argv){
                 printf("%d,",ordered[i][j]);
             }
             printf("}\n");
-        }
+        }//*/
     }
     else
     {
@@ -164,6 +179,10 @@ main(int argc, char** argv){
         }while(tag != SUICIDE);
         printf("[%f]@slave[%d] leaving...\n",curMilis(),my_rank);
     }
+
+    t2 = MPI_Wtime();        // contagem de tempo termina neste ponto
+
+    printf("[%f]@[%d]MPI_Wtime measured work time to be: %1.2f\n",curMilis(),my_rank, t2-t1);
 
     MPI_Finalize();
 
