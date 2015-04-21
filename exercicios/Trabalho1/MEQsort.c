@@ -47,7 +47,17 @@ main(int argc, char** argv){
 	srand(time(NULL));
 	int r = rand();
 
+    MPI_Status status; /* Status de retorno */
+
+    MPI_Init(&argc , & argv); // funcao que inicializa o MPI, todo o cÃ³digo paralelo esta abaixo
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &proc_n);
+	int dones = 0;
+    int slavesAlive = proc_n-1;
+
     if ( my_rank == 0 ){
+        printf("[%f]@master starting...\n",curMilis());
         printf("[%f]@creating works to do...\n",curMilis());
         saco = (int **)malloc(NUM_ARRAYS * sizeof(int *));
         if(saco == NULL)
@@ -94,20 +104,9 @@ main(int argc, char** argv){
             }
         }
         printf("[%f]@works created...\n",curMilis());
-    }
 
-    MPI_Status status; /* Status de retorno */
-
-    MPI_Init(&argc , & argv); // funcao que inicializa o MPI, todo o cÃ³digo paralelo esta abaixo
-
-    MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &proc_n);
-	int dones = 0;
-    int slavesAlive = proc_n-1;
-
-    if ( my_rank == 0 ){
-        printf("[%f]@master starting...\n",curMilis());
         int next = 0;
+        printf("[%f]@sending works\n",curMilis());
         for(s=1;s<slavesAlive;s++){
             if(next>=NUM_ARRAYS){
                 MPI_Send(val, 8, MPI_INT,s, SUICIDE, MPI_COMM_WORLD);
@@ -118,6 +117,7 @@ main(int argc, char** argv){
                 next++;
             }
         }
+        printf("[%f]@works sended; next=%d\n",curMilis(), next);
 
 		while(slavesAlive > 0){
             MPI_Recv(toOrder, 8, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
