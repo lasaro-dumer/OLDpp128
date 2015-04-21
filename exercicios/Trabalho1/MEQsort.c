@@ -110,6 +110,7 @@ main(int argc, char** argv){
                 MPI_Send(val, 8, MPI_INT,s, SUICIDE, MPI_COMM_WORLD);
                 slavesAlive--;
             }else {
+                printf("[%f]@sending work to slave %d\n",curMilis(),s);
                 MPI_Send(saco[next], 8, MPI_INT,s, WORK, MPI_COMM_WORLD);
                 next++;
             }
@@ -138,6 +139,7 @@ main(int argc, char** argv){
 		int tag = WORK;
 		do{
             MPI_Recv(toOrder, 8, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+            printf("[%f]@receiving work from master with tag %s\n",curMilis(),printTag(status.MPI_TAG));
 			tag = status.MPI_TAG;
 			if(tag == WORK){
                 qsort (toOrder, ARRAYS_SIZE, sizeof(int), compare);
