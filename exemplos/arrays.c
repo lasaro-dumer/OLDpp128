@@ -55,5 +55,8 @@ main(int argc, char** argv)
     qsort (saco[0], ARRAYS_SIZE, sizeof(int), compare);
     printArray(saco[0]);
 
+    int * val;
+    val=(int*)22;
+    printf("val=%d\n",((int*)val));
     return 0;
 }

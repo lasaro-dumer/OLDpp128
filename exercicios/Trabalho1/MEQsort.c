@@ -41,13 +41,14 @@ main(int argc, char** argv){
     int **saco;
     int * toOrder;
     int **ordered;
-    int i,val;
+    int i,j,s;
+    int * val=(int*)0;
 
 	srand(time(NULL));
 	int r = rand();
 
     if ( my_rank == 0 ){
-        saco = malloc(NUM_ARRAYS * sizeof(int *));
+        saco = (int **)malloc(NUM_ARRAYS * sizeof(int *));
         if(saco == NULL)
         {
             printf("out of memory\n");
@@ -55,7 +56,7 @@ main(int argc, char** argv){
         }else{
             for(i = 0; i < NUM_ARRAYS; i++)
             {
-                saco[i] = malloc(ARRAYS_SIZE * sizeof(int));
+                saco[i] =(int *) malloc(ARRAYS_SIZE * sizeof(int));
                 if(saco[i] == NULL)
                 {
                     printf("out of memory row %d\n",i);
@@ -69,7 +70,7 @@ main(int argc, char** argv){
             }
         }
 
-        ordered = malloc(NUM_ARRAYS * sizeof(int *));
+        ordered = (int **)malloc(NUM_ARRAYS * sizeof(int *));
         if(ordered == NULL)
         {
             printf("out of memory\n");
@@ -77,7 +78,7 @@ main(int argc, char** argv){
         }else{
             for(i = 0; i < NUM_ARRAYS; i++)
             {
-                ordered[i] = malloc(ARRAYS_SIZE * sizeof(int));
+                ordered[i] = (int *)malloc(ARRAYS_SIZE * sizeof(int));
                 if(ordered[i] == NULL)
                 {
                     printf("out of memory row %d\n",i);
@@ -106,8 +107,7 @@ main(int argc, char** argv){
         int next = 0;
         for(s=1;s<slavesAlive;s++){
             if(next>=NUM_ARRAYS){
-                val=0;
-                MPI_Send(&val, 8, MPI_INT,s, SUICIDE, MPI_COMM_WORLD);
+                MPI_Send(val, 8, MPI_INT,s, SUICIDE, MPI_COMM_WORLD);
                 slavesAlive--;
             }else {
                 MPI_Send(saco[next], 8, MPI_INT,s, WORK, MPI_COMM_WORLD);
@@ -122,8 +122,7 @@ main(int argc, char** argv){
                 dones++;
 			}else if(status.MPI_TAG == GET_WORK){
                 if(next>=NUM_ARRAYS){
-                    val=0;
-                    MPI_Send(&val, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
+                    MPI_Send(val, 8, MPI_INT,status.MPI_SOURCE, SUICIDE, MPI_COMM_WORLD);
                     slavesAlive--;
     			}else {
                     val = saco[next];
@@ -147,7 +146,7 @@ main(int argc, char** argv){
             if(tag != SUICIDE){
                 MPI_Send(&tag,  8, MPI_INT,0, GET_WORK, MPI_COMM_WORLD);
             }
-		}while(tag != SUICIDE)
+		}while(tag != SUICIDE);
         printf("[%f]@slave[%d] leaving...\n",curMilis(),my_rank);
      }
 
