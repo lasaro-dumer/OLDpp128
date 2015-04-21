@@ -3,7 +3,19 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #define NUM_ARRAYS 100000
-#define ARRAYS_SIZE 10000
+#define ARRAYS_SIZE 10
+
+int compare (const void * a, const void * b)
+{
+  return ( *(int*)a - *(int*)b );
+}
+
+void printArray(int * a){
+    int i;
+    for(i=0;i<ARRAYS_SIZE;i++){
+        printf("a[%d]=%d\n",i,a[i]);
+    }
+}
 
 
 main(int argc, char** argv)
@@ -38,6 +50,10 @@ main(int argc, char** argv)
 
     printf("All created.last item saco");
     printf("[%d][%d]=%d\n",i-1,j-1,saco[i-1][j-1]);
+
+    printArray(saco[0]);
+    qsort (saco[0], ARRAYS_SIZE, sizeof(int), compare);
+    printArray(saco[0]);
 
     return 0;
 }
