@@ -7,7 +7,7 @@
 #define WORK_DONE 1
 #define WORK 2
 #define SUICIDE 3
-#define NUM_ARRAYS 2
+#define NUM_ARRAYS 10
 #define ARRAYS_SIZE 5
 
 int compare (const void * a, const void * b){
@@ -36,8 +36,8 @@ const double curMilis(){
 }
 
 main(int argc, char** argv){
-    int my_rank;       // Identificador deste processo
-    int proc_n;        // Numero de processos disparados pelo usuÃ¡rio na linha de comando (np)
+    int my_rank;
+    int proc_n;
     int **saco;
     int toOrder[ARRAYS_SIZE];
     int **ordered;
@@ -57,8 +57,8 @@ main(int argc, char** argv){
     int slavesAlive = proc_n-1;
 
     if ( my_rank == 0 ){
-        printf("[%f]@master starting...\n",curMilis());
-        printf("[%f]@creating works to do...\n",curMilis());
+        //printf("[%f]@master starting...\n",curMilis());
+        //printf("[%f]@creating works to do...\n",curMilis());
         saco = (int **)malloc(NUM_ARRAYS * sizeof(int *));
         if(saco == NULL)
         {
@@ -103,21 +103,21 @@ main(int argc, char** argv){
                 }
             }
         }
-        printf("[%f]@works created...\n",curMilis());
+        //printf("[%f]@works created...\n",curMilis());
 
         int next = 0;
-        printf("[%f]@sending works\n",curMilis());
+        //printf("[%f]@sending works\n",curMilis());
         for(s=1;s<=slavesAlive;s++){
             if(next>=NUM_ARRAYS){
                 MPI_Send(val, 8, MPI_INT,s, SUICIDE, MPI_COMM_WORLD);
                 slavesAlive--;
             }else {
-                printf("[%f]@sending work to slave %d\n",curMilis(),s);
+                //printf("[%f]@sending work to slave %d\n",curMilis(),s);
                 MPI_Send(saco[next], ARRAYS_SIZE, MPI_INT,s, WORK, MPI_COMM_WORLD);
                 next++;
             }
         }
-        printf("[%f]@works sended; next=%d\n",curMilis(), next);
+        //printf("[%f]@works sended; next=%d\n",curMilis(), next);
 
 		while(slavesAlive > 0){
             MPI_Recv(toOrder, ARRAYS_SIZE, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
@@ -135,14 +135,24 @@ main(int argc, char** argv){
             }
 		}
         printf("[%f]@master leaving...\n",curMilis());
+        sleep(1);
+        for(i = 0; i < NUM_ARRAYS; i++)
+        {
+            printf("array[%d]={",i);
+            for(j = 0; j< ARRAYS_SIZE; j++)
+            {
+                printf("%d,",ordered[i][j]);
+            }
+            printf("}\n",);
+        }
     }
     else
     {
         int tag = WORK;
         do{
-            printf("[%f]@slave[%d] waiting...\n",curMilis(),my_rank);
+            //printf("[%f]@slave[%d] waiting...\n",curMilis(),my_rank);
             MPI_Recv(toOrder, ARRAYS_SIZE, MPI_INT,0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-            printf("[%f]@receiving work from master with tag %s\n",curMilis(),printTag(status.MPI_TAG));
+            //printf("[%f]@receiving work from master with tag %s\n",curMilis(),printTag(status.MPI_TAG));
     		tag = status.MPI_TAG;
     		if(tag == WORK){
                 qsort (toOrder, ARRAYS_SIZE, sizeof(int), compare);
