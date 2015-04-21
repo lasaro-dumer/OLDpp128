@@ -107,7 +107,7 @@ main(int argc, char** argv){
 
         int next = 0;
         printf("[%f]@sending works\n",curMilis());
-        for(s=1;s<slavesAlive;s++){
+        for(s=1;s<=slavesAlive;s++){
             if(next>=NUM_ARRAYS){
                 MPI_Send(val, 8, MPI_INT,s, SUICIDE, MPI_COMM_WORLD);
                 slavesAlive--;
