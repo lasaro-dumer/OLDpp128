@@ -104,7 +104,7 @@ main(int argc, char** argv){
                 qsort (saco[next], ARRAYS_SIZE, sizeof(int), compare);
                 next++;
             }
-            printf("[%f]@master done ordering. total=%d/%d...\n",curMilis(),next,NUM_ARRAYS-1);
+            printf("[%f]@master done ordering. total=%d/%d...\n",curMilis(),next,NUM_ARRAYS);
         }
 		while(slavesAlive > 0){
             MPI_Recv(toOrder, ARRAYS_SIZE, MPI_INT,MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);  // recebo por ordem de chegada com any_source
