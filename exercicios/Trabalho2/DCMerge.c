@@ -4,24 +4,25 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-#define ARRAY_SIZE 100000
+#define ARRAY_SIZE 1000000
+//#define DEBUG 1
+void bs(int n, int * vetor)
+{
+    int c=0, d, troca, trocou =1;
 
-void BubbleSort(int len, int * array){
-	int c=0, d, temp, done =1;
-
-	while (c < (len-1) & done )
-	{
-		done = 0;
-		for (d = 0 ; d < len - c - 1; d++)
-			if (array[d] > array[d+1])
-			{
-				temp      	= array[d];
-				array[d]   	= array[d+1];
-				array[d+1] 	= temp;
-				done = 1;
-			}
-		c++;
-	}
+    while (c < (n-1) & trocou )
+        {
+        trocou = 0;
+        for (d = 0 ; d < n - c - 1; d++)
+            if (vetor[d] > vetor[d+1])
+                {
+                troca      = vetor[d];
+                vetor[d]   = vetor[d+1];
+                vetor[d+1] = troca;
+                trocou = 1;
+                }
+        c++;
+        }
 }
 
 int *interleaving(int array[], int len){
@@ -80,7 +81,9 @@ main(int argc, char** argv){
         MPI_Recv(&vetor[0],ARRAY_SIZE,MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
         MPI_Get_count(&status, MPI_INT, &tam_vetor);
 
+		#ifdef DEBUG
 		printf("[%f]@slave[%d] Array len=%d\n",curMilis(),my_rank,tam_vetor);
+		#endif
     }
     else
     {
@@ -89,21 +92,26 @@ main(int argc, char** argv){
         int i;
         for (i=0 ; i<ARRAY_SIZE; i++)              /* init array with worst case for sorting */
             vetor[i] = ARRAY_SIZE-i;
-
+		#ifdef DEBUG
 		printf("[%f]@master[%d] Initial array len=%d\n",curMilis(),my_rank,tam_vetor);
+		#endif
     }
 
     //root
     if(tam_vetor <= delta)
     {
         //conquista (bubble sort)
-        BubbleSort(tam_vetor, vetor);    // conquisto
+        bs(tam_vetor, vetor);    // conquisto
         if (my_rank == 0)
         {
             t_after = MPI_Wtime();
+			//#ifdef DEBUG
 			printf("[%f]@master[%d]:Time measured=%1.3fs ;Array len=%d\n",curMilis(),my_rank, t_after - t_before,tam_vetor);
+			//#endif
         }
+		#ifdef DEBUG
 		printf("[%f]@slave[%d] Array len=%d\n",curMilis(),my_rank,tam_vetor);
+		#endif
     }
     else
     {
@@ -126,17 +134,23 @@ main(int argc, char** argv){
         }
         if (my_rank == 0){
             t_after = MPI_Wtime();
+			//#ifdef DEBUG
 			printf("[%f]@master[%d]:Time measured=%1.3fs ;Array len=%d\n",curMilis(),my_rank, t_after - t_before,tam_vetor);
+			//#endif
         }
     }
 
     // mando para o pai
     if ( my_rank !=0 ){
         MPI_Send(&vetor,tam_vetor,MPI_INT, my_rank/2 - 1 + my_rank%2, 1, MPI_COMM_WORLD);
+		#ifdef DEBUG
 		printf("[%f]@slave[%d] leaving...\n",curMilis(),my_rank);
+		#endif
     }else{
+		#ifdef DEBUG
 		printf("[%f]@master leaving...\n",curMilis());
-		/*
+		#endif
+    	/*
 		sleep(2);
 		printf("\nVetor %d: ", my_rank);
 		int i;
